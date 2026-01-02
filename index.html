@@ -3,536 +3,526 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Generator: YasTool</title>
+    <title>YAS Pro Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary-color: #D20061; /* Warna Tema Baru */
-            --primary-hover: #a3164a; /* Warna Hover Tombol */
-            --bg-dark: #0f0f0f;
-            --bg-panel: #1e1e1e;
-            --text-main: #e0e0e0;
+            --accent: #D20061;
+            --accent-glow: rgba(210, 0, 97, 0.4);
+            --bg-body: #050505;
+            --bg-panel: rgba(20, 20, 23, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-sub: #888888;
         }
+
+        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        /* Scrollbar kustom agar sesuai tema */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #181818; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
-
-        h1 { 
-            margin: 0 0 20px 0; 
-            font-size: 1.4rem; 
-            color: #fff; 
-            text-align: center; 
-            letter-spacing: 1px;
-            /* Sedikit efek glow pada judul */
-            text-shadow: 0 0 15px rgba(210, 0, 97, 0.4); 
-        }
-
-        .controls {
-            background: var(--bg-panel);
-            padding: 20px;
-            border-radius: 12px;
-            /* Border atas diberi warna tema sebagai aksen */
-            border: 1px solid #333;
-            border-top: 3px solid var(--primary-color);
-            width: 100%;
-            max-width: 700px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        }
-
-        /* --- LAYOUT BARIS & KOLOM --- */
-        .row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-        
-        .col {
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .col-auto {
-            flex: 0 0 50px;
-        }
-
-        label {
-            font-size: 11px;
-            color: #bbb;
-            margin-bottom: 6px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        /* --- INPUT TEXT & FILE --- */
-        input[type="text"], input[type="file"] {
-            padding: 8px 10px;
-            border: 1px solid #444;
-            background: #2c2c2c;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 13px;
-            width: 100%;
-            box-sizing: border-box;
-            transition: all 0.3s;
-        }
-        /* Fokus input menggunakan warna tema */
-        input[type="text"]:focus { 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 5px rgba(210, 0, 97, 0.3);
-            outline: none; 
-        }
-
-        /* --- COLOR PICKER --- */
-        input[type="color"] {
-            -webkit-appearance: none;
-            border: none;
-            width: 100%;
-            height: 35px;
-            border-radius: 6px;
-            background: none;
-            cursor: pointer;
-            padding: 0;
-        }
-        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type="color"]::-webkit-color-swatch { border: 1px solid #444; border-radius: 6px; }
-
-        /* --- RANGE WRAPPER (Slider + Number) --- */
-        .range-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #252525;
-            padding: 5px 8px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            transition: border-color 0.3s;
-        }
-        .range-wrapper:focus-within {
-            border-color: #555;
-        }
-
-        /* Slider Style */
-        input[type="range"] {
-            -webkit-appearance: none;
-            flex-grow: 1; 
-            height: 4px;
-            background: #444;
-            border-radius: 5px;
-            outline: none;
-            margin: 0;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            background: var(--primary-color); /* Warna Tema Slider */
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        input[type="range"]::-webkit-slider-thumb:hover { 
-            transform: scale(1.2); 
-            box-shadow: 0 0 8px var(--primary-color);
-        }
-
-        /* Number Input Style (Fixed Size) */
-        input[type="number"] {
-            width: 50px;
-            padding: 2px;
-            background: transparent;
-            border: none;
-            color: var(--primary-color); /* Warna Tema Angka */
-            font-weight: bold;
-            font-size: 13px;
-            text-align: right;
-            -moz-appearance: textfield;
-        }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type="number"]:focus { outline: none; }
-
-
-        /* --- BUTTONS --- */
-        .toggle-btn {
-            background: #333;
-            color: #bbb;
-            border: none;
-            padding: 10px;
-            width: 100%;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 15px;
-            transition: 0.2s;
-        }
-        .toggle-btn:hover { background: #444; color: white; }
-
-        #advancedSection {
-            display: none;
-            background: #181818;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px dashed #444;
-        }
-
-        .btn-download {
-            width: 100%;
-            background-color: var(--primary-color); /* Warna Tema Utama */
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .btn-download:hover { 
-            background-color: var(--primary-hover); 
-            box-shadow: 0 4px 12px rgba(210, 0, 97, 0.4);
-            transform: translateY(-1px);
-        }
-        .btn-download:active {
-            transform: translateY(0);
-        }
-
-        /* --- PREVIEW AREA --- */
-        .preview-area {
-            width: 100%;
-            max-width: 1280px; 
-            border: 2px solid #333;
-            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
             background-image: 
-                linear-gradient(45deg, #222 25%, transparent 25%), 
-                linear-gradient(-45deg, #222 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #222 75%), 
-                linear-gradient(-45deg, transparent 75%, #222 75%);
-            background-size: 20px 20px;
-            background-color: #181818;
+                radial-gradient(circle at 50% 0%, #1a0b12 0%, transparent 60%),
+                linear-gradient(0deg, transparent 95%, rgba(210, 0, 97, 0.03) 100%);
+            background-size: 100% 100%, 100% 4px;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- PREVIEW AREA (STAGE) --- */
+        .stage-container {
+            width: 100%;
+            padding: 30px 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .canvas-wrapper {
+            max-width: 900px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #0a0a0a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
             overflow: hidden;
             margin-bottom: 10px;
         }
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: auto;
+        canvas { display: block; width: 100%; height: auto; }
+
+        .stage-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-sub);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
         }
 
-        .footer-credit {
+        /* --- CONTROL DECK (SPLIT LAYOUT) --- */
+        .control-deck {
+            width: 100%;
+            max-width: 1000px;
+            padding: 0 20px 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .panel-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- INPUT STYLES --- */
+        label {
             font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-            font-weight: 500;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
             letter-spacing: 0.5px;
-            opacity: 0.7;
+            margin-bottom: 8px;
+            display: block;
         }
+
+        .row-group { display: flex; gap: 15px; }
+        .col-fill { flex: 1; }
+        .col-auto { flex: 0 0 auto; }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.3); /* Transparan Placeholder */
+            font-style: italic;
+        }
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            outline: none;
+            background: rgba(0,0,0,0.8);
+        }
+
+        .file-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            background: rgba(255,255,255,0.02);
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-zone:hover { border-color: var(--accent); background: rgba(210,0,97,0.05); }
+        .file-zone input { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .file-text { font-size: 12px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; pointer-events: none;}
+
+        /* Sliders & Color */
+        .slider-box {
+            background: rgba(0,0,0,0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="range"] { flex: 1; -webkit-appearance: none; height: 4px; background: #333; border-radius: 2px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--text-main); border-radius: 50%; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb:hover { background: var(--accent); }
+        input[type="number"] { width: 40px; background: transparent; border: none; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 700; text-align: right; outline: none; }
+
+        .color-wrapper { width: 42px; height: 42px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 150%; height: 150%; margin: -25%; padding: 0; cursor: pointer; background: none; }
+
+        /* --- ADVANCED ACCORDION --- */
+        .adv-btn {
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-sub);
+            width: 100%; padding: 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.3s;
+        }
+        .adv-btn:hover { border-color: var(--accent); color: #fff; }
+        .adv-btn.active { background: rgba(210,0,97,0.1); border-color: var(--accent); color: var(--accent); }
+
+        .adv-panel {
+            max-height: 0; overflow: hidden; transition: all 0.4s ease; opacity: 0;
+            background: rgba(0,0,0,0.2); border-radius: 6px;
+        }
+        .adv-panel.open { max-height: 400px; opacity: 1; padding: 15px; border: 1px dashed var(--border-color); margin-top: 10px;}
+
+        /* --- RIGHT COLUMN & DROP UP --- */
+        .action-container { display: flex; flex-direction: column; height: 100%; justify-content: space-between; gap: 20px; }
+        .search-group { position: relative; flex-grow: 1; }
         
-        /* Utility class untuk teks warna tema */
-        .text-theme {
-            color: var(--primary-color) !important;
+        .drop-up-list {
+            position: absolute; bottom: 100%; left: 0; right: 0; margin-bottom: 5px;
+            background: #111; border: 1px solid var(--accent); border-radius: 6px;
+            max-height: 250px; overflow-y: auto; z-index: 50; display: none;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
         }
+        .drop-up-list.show { display: block; }
+        .list-item { padding: 10px 12px; font-size: 12px; color: #ccc; border-bottom: 1px solid #222; cursor: pointer; }
+        .list-item:hover { background: var(--accent); color: #fff; }
+
+        .btn-dl {
+            width: 100%; padding: 20px; background: var(--accent); color: #fff;
+            border: none; border-radius: 8px; font-size: 14px; font-weight: 800;
+            letter-spacing: 1px; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(210, 0, 97, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(210, 0, 97, 0.5); background: #e0006a; }
+
+        .footer { grid-column: 1 / -1; text-align: center; font-size: 10px; color: #555; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>TGA Inventory Generator</h1>
-
-    <div class="controls">
-        <!-- 1. Upload -->
-        <div class="row">
-            <div class="col">
-                <label>1. Upload Gambar Senjata (PNG)</label>
-                <input type="file" id="imageInput" accept="image/*">
-            </div>
+    <div class="stage-container">
+        <div class="canvas-wrapper">
+            <canvas id="mainCanvas" width="1280" height="500"></canvas>
         </div>
-        
-        <!-- 2. Teks & Warna -->
-        <div class="row">
-             <div class="col">
-                <label>2. Nama Skin</label>
-                <input type="text" id="textInput" placeholder="Contoh: T77" value="Nama Skin">
-            </div>
-            <div class="col-auto">
-                <label>Warna</label>
-                <input type="color" id="textColorInput" value="#ffffff">
-            </div>
-        </div>
-
-        <!-- 3. Ukuran (Slider + Input Angka) -->
-        <div class="row">
-            <div class="col">
-                <label>Ukuran Teks</label>
-                <div class="range-wrapper">
-                    <input type="range" id="fontSizeSlider" min="10" max="150" value="60">
-                    <input type="number" id="fontSizeNum" value="60" min="10" max="150">
-                </div>
-            </div>
-            <div class="col">
-                <label>Ukuran Gambar</label>
-                <div class="range-wrapper">
-                    <input type="range" id="imgScaleSlider" min="10" max="150" value="100">
-                    <input type="number" id="imgScaleNum" value="100" min="10" max="150">
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Toggle Advanced Settings -->
-        <button class="toggle-btn" onclick="toggleAdvanced()">&#9881; Advanced</button>
-
-        <!-- 5. Advanced Settings (Hidden) -->
-        <div id="advancedSection">
-            <label class="text-theme" style="margin-bottom: 10px; display:block;">Posisi Teks</label>
-            <div class="row">
-                <div class="col">
-                    <label>Horizontal — Kiri / Kanan</label>
-                    <div class="range-wrapper">
-                        <input type="range" id="textXSlider" min="-600" max="600" value="0">
-                        <input type="number" id="textXNum" value="0">
-                    </div>
-                </div>
-                <div class="col">
-                    <label>Vertikal — Atas / Bawah</label>
-                    <div class="range-wrapper">
-                        <input type="range" id="textYSlider" min="-100" max="400" value="0">
-                        <input type="number" id="textYNum" value="0">
-                    </div>
-                </div>
-            </div>
-
-            <label class="text-theme" style="margin-bottom: 10px; margin-top: 10px; display:block;">Posisi Gambar</label>
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col">
-                    <label>Horizontal — Kiri / Kanan</label>
-                    <div class="range-wrapper">
-                        <input type="range" id="imgXSlider" min="-600" max="600" value="0">
-                        <input type="number" id="imgXNum" value="0">
-                    </div>
-                </div>
-                <div class="col">
-                    <label>Vertikal — Atas / Bawah</label>
-                    <div class="range-wrapper">
-                        <input type="range" id="imgYSlider" min="-300" max="300" value="0">
-                        <input type="number" id="imgYNum" value="0">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6. Output Name & Download -->
-        <div class="row">
-            <div class="col">
-                <label>Nama File Output</label>
-                <input type="text" id="filenameInput" placeholder="Contoh = weapon_t77">
-            </div>
-        </div>
-
-        <button class="btn-download" id="downloadBtn">DOWNLOAD .TGA</button>
+        <div class="stage-label">PREVIEW</div>
     </div>
 
-    <!-- PREVIEW -->
-    <div class="preview-area">
-        <canvas id="myCanvas" width="1280" height="500"></canvas>
-    </div>
-    
-    <!-- FOOTER CREDIT -->
-    <div class="footer-credit">
-        @yasaaoursea – Tga inventory generator
+    <div class="control-deck">
+        <div class="panel-grid">
+            
+            <!-- PANEL KIRI -->
+            <div class="card">
+                <div class="row-group">
+                    <div class="col-fill">
+                        <label>1. Upload Gambar</label>
+                        <div class="file-zone">
+                            <span class="file-text" id="fileName">Pilih File...</span>
+                            <input type="file" id="inpImage" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="col-fill">
+                        <label>2. Nama Skin</label>
+                        <!-- CHANGE: value dihapus, ganti dengan placeholder -->
+                        <input type="text" id="inpText" placeholder="NAMA SKIN">
+                    </div>
+                    <div class="col-auto">
+                        <label>Warna</label>
+                        <div class="color-wrapper">
+                            <input type="color" id="inpColor" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-group">
+                    <div class="col-fill">
+                        <label>Ukuran Teks</label>
+                        <div class="slider-box">
+                            <input type="range" id="slSize" min="10" max="200" value="60">
+                            <input type="number" id="numSize" value="60">
+                        </div>
+                    </div>
+                    <div class="col-fill">
+                        <label>Ukuran Gambar</label>
+                        <div class="slider-box">
+                            <input type="range" id="slScale" min="10" max="200" value="100">
+                            <input type="number" id="numScale" value="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="adv-btn" id="btnAdvanced"><span>⚙️ ATUR POSISI MANUAL</span></button>
+                    <div class="adv-panel" id="panelAdvanced">
+                        <div class="row-group" style="margin-bottom: 10px;">
+                            <div class="col-fill">
+                                <label style="color:var(--accent)">Posisi Teks (X/Y)</label>
+                                <div class="slider-box" style="margin-bottom:5px">
+                                    <input type="range" id="slTextX" min="-600" max="600" value="0">
+                                    <input type="number" id="numTextX" value="0">
+                                </div>
+                                <div class="slider-box">
+                                    <input type="range" id="slTextY" min="-100" max="400" value="0">
+                                    <input type="number" id="numTextY" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-group">
+                            <div class="col-fill">
+                                <label style="color:var(--accent)">Posisi Gambar (X/Y)</label>
+                                <div class="slider-box" style="margin-bottom:5px">
+                                    <input type="range" id="slImgX" min="-600" max="600" value="0">
+                                    <input type="number" id="numImgX" value="0">
+                                </div>
+                                <div class="slider-box">
+                                    <input type="range" id="slImgY" min="-300" max="300" value="0">
+                                    <input type="number" id="numImgY" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL KANAN -->
+            <div class="card action-container">
+                <div class="search-group">
+                    <label>3. Output Name</label>
+                    <input type="text" id="inpFilename" placeholder="Cari / Ketik nama..." autocomplete="off" style="height: 45px; font-weight: 600;">
+                    
+                    <div class="drop-up-list" id="listDropdown"></div>
+                    
+                    <div style="margin-top: 15px; font-size: 11px; color: #666; line-height: 1.5;">
+                        <strong style="color: #888">Info:</strong><br>
+                        output name adalah, nama file(bukan nama skin) tga yang anda buat saat ini
+                    </div>
+                </div>
+
+                <button class="btn-dl" id="btnDownload">
+                    <span>DOWNLOAD .TGA</span>
+                </button>
+            </div>
+
+            <div class="footer">@yasaaoursea - TGA Weapon Generator 2026</div>
+        </div>
     </div>
 
     <script>
-        // --- ELEMENTS ---
-        const canvas = document.getElementById('myCanvas');
+        const dbWeapons = [
+            "weapon_ak47", "weapon_ak47_fc", "weapon_aksopmod", "weapon_aksopmod_cg",
+            "weapon_amok", "weapon_apc", "weapon_arabian_sword", "weapon_as50",
+            "weapon_aug", "weapon_aug_a3_silencer", "weapon_aug_esport", "weapon_aug_hbar",
+            "weapon_augblitz", "weapon_awp", "weapon_bow", "weapon_brass_knuckle",
+            "weapon_butterfly", "weapon_c5", "weapon_candy_cane", "weapon_cheytac_m200",
+            "weapon_claymore", "weapon_colt_python", "weapon_combat", "weapon_deagle",
+            "weapon_deagle_dual", "weapon_dragunov", "weapon_dual_handgun", "weapon_dual_knife",
+            "weapon_f2000", "weapon_famas_g2", "weapon_fangblade", "weapon_fg42",
+            "weapon_g36c", "weapon_gasbomb", "weapon_glock18", "weapon_groza",
+            "weapon_hegrenade", "weapon_hk417", "weapon_ice", "weapon_k1",
+            "weapon_k2", "weapon_kar98k", "weapon_karambit", "weapon_keris",
+            "weapon_knife", "weapon_knifebone", "weapon_kriss_sv", "weapon_kriss_sv_batik",
+            "weapon_kriss_sv_crb", "weapon_kriss_sv_silence", "weapon_m3",
+            "weapon_m4_cqb_lv1", "weapon_m4_cqb_lv2", "weapon_m4_spr_lv1", "weapon_m4_spr_lv2",
+            "weapon_m4a1", "weapon_m4a1_s", "weapon_m82a1", "weapon_m1887",
+            "weapon_medkit", "weapon_mini_axe", "weapon_mp5k", "weapon_mp7",
+            "weapon_mp9", "weapon_msbs", "weapon_oa93", "weapon_p90",
+            "weapon_p90_mc", "weapon_pgm", "weapon_pindad_ss2_v5", "weapon_rangemaster_338",
+            "weapon_saber", "weapon_sc2010", "weapon_scar_carbine", "weapon_scout",
+            "weapon_sf", "weapon_sg550", "weapon_sig", "weapon_smokegrenade",
+            "weapon_spas_15", "weapon_spectre", "weapon_t77", "weapon_tactilite_t2",
+            "weapon_tar", "weapon_taurus_raging_bull", "weapon_ump", "weapon_usp",
+            "weapon_water", "weapon_wpsmoke", "weapon_xm8", "weapon_zombie_ss"
+        ];
+
+        const canvas = document.getElementById('mainCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Inputs Text/File/Color
-        const imageInput = document.getElementById('imageInput');
-        const textInput = document.getElementById('textInput');
-        const textColorInput = document.getElementById('textColorInput');
-        const filenameInput = document.getElementById('filenameInput');
-        
-        // --- INPUT PAIRS (Slider & Number) ---
-        const getPair = (idSlider, idNum) => ({
-            slider: document.getElementById(idSlider),
-            num: document.getElementById(idNum)
+        let imgObj = new Image();
+        let imgReady = false;
+
+        const ui = {
+            file: document.getElementById('inpImage'),
+            fileName: document.getElementById('fileName'),
+            text: document.getElementById('inpText'),
+            color: document.getElementById('inpColor'),
+            filename: document.getElementById('inpFilename'),
+            dropdown: document.getElementById('listDropdown'),
+            advBtn: document.getElementById('btnAdvanced'),
+            advPanel: document.getElementById('panelAdvanced'),
+            dlBtn: document.getElementById('btnDownload')
+        };
+
+        const pair = (sl, num) => {
+            const s = document.getElementById(sl);
+            const n = document.getElementById(num);
+            s.addEventListener('input', () => { n.value = s.value; render(); });
+            n.addEventListener('input', () => { s.value = n.value; render(); });
+            return { s, n };
+        };
+
+        const ctrls = {
+            size: pair('slSize', 'numSize'),
+            scale: pair('slScale', 'numScale'),
+            tx: pair('slTextX', 'numTextX'),
+            ty: pair('slTextY', 'numTextY'),
+            ix: pair('slImgX', 'numImgX'),
+            iy: pair('slImgY', 'numImgY')
+        };
+
+        ui.advBtn.addEventListener('click', () => {
+            ui.advPanel.classList.toggle('open');
+            ui.advBtn.classList.toggle('active');
         });
 
-        const fontSize = getPair('fontSizeSlider', 'fontSizeNum');
-        const imgScale = getPair('imgScaleSlider', 'imgScaleNum');
-        const textX = getPair('textXSlider', 'textXNum');
-        const textY = getPair('textYSlider', 'textYNum');
-        const imgX = getPair('imgXSlider', 'imgXNum');
-        const imgY = getPair('imgYSlider', 'imgYNum');
-
-        const allPairs = [fontSize, imgScale, textX, textY, imgX, imgY];
-
-        const downloadBtn = document.getElementById('downloadBtn');
-        const advancedSection = document.getElementById('advancedSection');
-
-        let uploadedImage = new Image();
-        let isImageLoaded = false;
-
-        // --- TOGGLE FUNCTION ---
-        function toggleAdvanced() {
-            if (advancedSection.style.display === "block") {
-                advancedSection.style.display = "none";
-            } else {
-                advancedSection.style.display = "block";
-            }
-        }
-
-        // --- SYNC FUNCTION (Slider <-> Number) ---
-        function setupSync(pair) {
-            pair.slider.addEventListener('input', () => {
-                pair.num.value = pair.slider.value;
-                drawCanvas();
-            });
-            pair.num.addEventListener('input', () => {
-                pair.slider.value = pair.num.value;
-                drawCanvas();
-            });
-        }
-        allPairs.forEach(pair => setupSync(pair));
-
-        // --- DRAW FUNCTION ---
-        function drawCanvas() {
+        function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const text = textInput.value;
-            const size = fontSize.slider.value;
-            const color = textColorInput.value;
             
-            const txVal = parseInt(textX.slider.value);
-            const tyVal = parseInt(textY.slider.value);
-            
-            const scalePercent = imgScale.slider.value;
-            const userScale = scalePercent / 100;
-            const ixVal = parseInt(imgX.slider.value);
-            const iyVal = parseInt(imgY.slider.value);
+            // LOGIC PLACEHOLDER: Jika user belum mengetik, pakai teks placeholder
+            const rawText = ui.text.value;
+            const txt = rawText.trim() === "" ? "NAMA SKIN" : rawText;
 
-            // DRAW TEXT
-            ctx.fillStyle = color; 
-            ctx.font = `900 ${size}px Arial`; 
-            ctx.textAlign = 'center';     
+            const sz = ctrls.size.s.value;
+            const col = ui.color.value;
+            const tx = parseInt(ctrls.tx.s.value);
+            const ty = parseInt(ctrls.ty.s.value);
+            
+            const scl = ctrls.scale.s.value / 100;
+            const ix = parseInt(ctrls.ix.s.value);
+            const iy = parseInt(ctrls.iy.s.value);
+
+            // Draw Text (FONT DIKEMBALIKAN KE ARIAL 900)
+            ctx.fillStyle = col;
+            ctx.font = `900 ${sz}px Arial`; // Font tebal klasik
+            ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            
-            const textFinalX = (canvas.width / 2) + txVal;
-            const textFinalY = 15 + tyVal;
-            
-            ctx.fillText(text, textFinalX, textFinalY);
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 8;
+            ctx.fillText(txt, (canvas.width/2) + tx, 15 + ty);
+            ctx.shadowBlur = 0;
 
-            // DRAW IMAGE
-            if (isImageLoaded) {
-                const hRatio = canvas.width / uploadedImage.width;
-                const vRatio = canvas.height / uploadedImage.height;
-                const baseRatio = Math.min(hRatio, vRatio);
-                const finalRatio = baseRatio * userScale;
+            if (imgReady) {
+                const hRatio = canvas.width / imgObj.width;
+                const vRatio = canvas.height / imgObj.height;
+                const ratio = Math.min(hRatio, vRatio) * scl;
+                
+                const w = imgObj.width * ratio;
+                const h = imgObj.height * ratio;
+                const cx = (canvas.width - w) / 2;
+                const cy = (canvas.height - h) / 2;
 
-                const imgWidth = uploadedImage.width * finalRatio;
-                const imgHeight = uploadedImage.height * finalRatio;
-
-                const centerX = (canvas.width - imgWidth) / 2;
-                const centerY = (canvas.height - imgHeight) / 2;
-
-                const imgFinalX = centerX + ixVal;
-                const imgFinalY = centerY + iyVal;
-
-                ctx.drawImage(uploadedImage, 0, 0, uploadedImage.width, uploadedImage.height,
-                              imgFinalX, imgFinalY, imgWidth, imgHeight);
+                ctx.drawImage(imgObj, 0, 0, imgObj.width, imgObj.height, cx + ix, cy + iy, w, h);
             }
         }
 
-        // --- EVENT LISTENERS ---
-        textInput.addEventListener('input', drawCanvas);
-        textColorInput.addEventListener('input', drawCanvas);
+        ui.text.addEventListener('input', render);
+        ui.color.addEventListener('input', render);
 
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    uploadedImage.src = event.target.result;
-                    uploadedImage.onload = function() {
-                        isImageLoaded = true;
-                        drawCanvas();
-                    }
-                }
-                reader.readAsDataURL(file);
+        ui.file.addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (f) {
+                ui.fileName.textContent = f.name;
+                ui.fileName.style.color = "var(--accent)";
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    imgObj.src = ev.target.result;
+                    imgObj.onload = () => { imgReady = true; render(); };
+                };
+                r.readAsDataURL(f);
             }
         });
 
-        // --- DOWNLOAD LOGIC ---
-        downloadBtn.addEventListener('click', function() {
-            const width = canvas.width;
-            const height = canvas.height;
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
+        function updateList(query) {
+            ui.dropdown.innerHTML = '';
+            const match = dbWeapons.filter(w => w.toLowerCase().includes(query.toLowerCase()));
+            
+            if (match.length > 0) {
+                match.forEach(w => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.textContent = w;
+                    div.onclick = () => {
+                        ui.filename.value = w;
+                        ui.dropdown.classList.remove('show');
+                        
+                        let clean = w.replace(/^weapon_/, '').replace(/_/g, ' ').toUpperCase();
+                        ui.text.value = clean; // Set value agar user bisa edit
+                        render();
+                    };
+                    ui.dropdown.appendChild(div);
+                });
+                ui.dropdown.classList.add('show');
+            } else {
+                ui.dropdown.classList.remove('show');
+            }
+        }
+
+        ui.filename.addEventListener('input', (e) => updateList(e.target.value));
+        ui.filename.addEventListener('focus', (e) => updateList(e.target.value));
+        
+        document.addEventListener('click', (e) => {
+            if (!ui.filename.contains(e.target) && !ui.dropdown.contains(e.target)) {
+                ui.dropdown.classList.remove('show');
+            }
+        });
+
+        ui.dlBtn.addEventListener('click', () => {
+            const w = canvas.width;
+            const h = canvas.height;
+            const idata = ctx.getImageData(0, 0, w, h);
+            const d = idata.data;
 
             const header = new Uint8Array(18);
-            header[2] = 2;   
-            header[12] = width & 0xFF;
-            header[13] = (width >> 8) & 0xFF;
-            header[14] = height & 0xFF;
-            header[15] = (height >> 8) & 0xFF;
-            header[16] = 32; 
-            header[17] = 0x28; 
+            header[2] = 2; 
+            header[12] = w & 0xFF; header[13] = (w >> 8) & 0xFF;
+            header[14] = h & 0xFF; header[15] = (h >> 8) & 0xFF;
+            header[16] = 32; header[17] = 0x28;
 
-            const bufferSize = 18 + (width * height * 4);
-            const tgaBuffer = new Uint8Array(bufferSize);
-            tgaBuffer.set(header, 0);
+            const buf = new Uint8Array(18 + (w * h * 4));
+            buf.set(header, 0);
 
-            let offset = 18;
-            for (let i = 0; i < data.length; i += 4) {
-                tgaBuffer[offset++] = data[i + 2]; 
-                tgaBuffer[offset++] = data[i + 1]; 
-                tgaBuffer[offset++] = data[i];     
-                tgaBuffer[offset++] = data[i + 3]; 
+            let k = 18;
+            for (let i = 0; i < d.length; i += 4) {
+                buf[k++] = d[i + 2];
+                buf[k++] = d[i + 1];
+                buf[k++] = d[i];
+                buf[k++] = d[i + 3];
             }
 
-            const customName = filenameInput.value.trim();
-            const itemLabel = textInput.value.trim();
-            let rawName = customName.length > 0 ? customName : itemLabel;
-            if (rawName.length === 0) rawName = "inventory_item"; 
-            let safeName = rawName.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_');
+            // Fallback nama jika kosong, ambil default
+            let rawText = ui.text.value.trim();
+            if (rawText === "") rawText = "NAMA SKIN";
+            
+            let fname = ui.filename.value.trim() || rawText || "weapon_custom";
+            fname = fname.replace(/[^a-zA-Z0-9-_]/g, '_');
+            if (fname.toLowerCase().endsWith('.tga')) fname = fname.slice(0, -4);
 
-            const blob = new Blob([tgaBuffer], { type: 'image/x-tga' });
-            const link = document.createElement('a');
-            link.download = safeName + '.tga';
-            link.href = URL.createObjectURL(blob);
-            link.click();
+            const blob = new Blob([buf], {type: 'image/x-tga'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fname + ".tga";
+            a.click();
         });
 
-        drawCanvas();
+        render();
     </script>
 </body>
 </html>
